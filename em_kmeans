@@ -1,0 +1,48 @@
+import matplotlib.pyplot as plt
+from sklearn import datasets
+from sklearn.cluster import KMeans
+from sklearn.mixture import GaussianMixture
+from sklearn import preprocessing
+from sklearn.metrics import confusion_matrix
+import sklearn.metrics as sm
+import pandas as pd
+import numpy as np
+%matplotlib inline
+df = pd.read_csv("/content/Iris.csv")
+X = df.drop(columns = ['Species'])
+Y = df.drop(columns = ['SepalLengthCm','SepalWidthCm', 'PetalLengthCm', 'PetalWidthCm',
+'Species'])
+model = KMeans(n_clusters = 3)
+model.fit(X)
+preds = model.predict(X)
+preds
+
+sm.accuracy_score(Y, model.labels_)*100
+cm = confusion_matrix(Y, model.labels_)
+print(cm)
+
+scaler = preprocessing.StandardScaler()
+scaler.fit(X)
+xx = scaler.transform(X)
+Xx = pd.DataFrame(xx, columns = X.columns)
+X= Xx
+gmm = GaussianMixture(n_components = 3)
+gmm.fit(X)
+y_cluster_gmm = gmm.predict(X)
+y_cluster_gmm
+
+sm.accuracy_score(Y, y_cluster_gmm)
+
+cm = confusion_matrix(Y, y_cluster_gmm)
+print(cm)
+
+
+plt.figure(figsize = (14, 7))
+colormap = np.array(['red', 'lime', 'black'])
+plt.subplot(1,2,1)
+plt.scatter(X.PetalLengthCm, X.PetalWidthCm, c = colormap[preds], s = 40)
+plt.title('K Mean Classification')
+plt.subplot(1,2,2)
+plt.scatter(X.PetalLengthCm, X.PetalWidthCm, c = colormap[y_cluster_gmm], s = 40)
+plt.title('GMM Classification')
+

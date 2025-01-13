@@ -1,0 +1,102 @@
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import datasets
+from sklearn.metrics import f1_score
+from sklearn.model_selection import cross_validate
+from sklearn.tree import DecisionTreeClassifier
+
+# Load dataset
+cancer = datasets.load_breast_cancer()
+df = pd.DataFrame(cancer.data, columns=cancer.feature_names)
+df['target'] = pd.Series(cancer.target)
+
+# Define features and target
+x = df.drop(columns=['target'])
+y = df['target']
+
+# Cross-validation function
+def cross_validation(model, _x, _y, _cv=5):
+    _scoring = ['accuracy', 'precision', 'recall', 'f1']
+    results = cross_validate(
+        estimator=model,
+        X=_x,
+        y=_y,
+        cv=_cv,
+        scoring=_scoring,
+        return_train_score=True
+    )
+    print("Mean Training Accuracy scores: ", results['train_accuracy'].mean())
+    print("Mean Training Precision scores: ", results['train_precision'].mean())
+    print("Mean Training Recall scores: ", results['train_recall'].mean())
+    print("Mean Training F1 scores: ", results['train_f1'].mean())
+    print("Mean Validation Accuracy scores: ", results['test_accuracy'].mean())
+    print("Mean Validation Precision scores: ", results['test_precision'].mean())
+    print("Mean Validation Recall scores: ", results['test_recall'].mean())
+    print("Mean Validation F1 scores: ", results['test_f1'].mean())
+
+    return {
+        "Training Accuracy scores": results['train_accuracy'],
+        "Training Precision scores": results['train_precision'],
+        "Training Recall scores": results['train_recall'],
+        "Training F1 scores": results['train_f1'],
+        "Validation Accuracy scores": results['test_accuracy'],
+        "Validation Precision scores": results['test_precision'],
+        "Validation Recall scores": results['test_recall'],
+        "Validation F1 scores": results['test_f1'],
+    }
+
+# Decision Tree model
+decision_tree_model = DecisionTreeClassifier(
+    criterion="entropy", min_samples_split=5, random_state=0
+)
+decision_tree_result = cross_validation(decision_tree_model, x, y, 5)
+
+# Plotting function
+def plot_result(x_label, y_label, plot_title, train_data, val_data):
+    plt.figure(figsize=(12, 6))
+    labels = ["1st Fold", "2nd Fold", "3rd Fold", "4th Fold", "5th Fold"]
+    X_axis = np.arange(len(labels))
+    plt.ylim(0.8, 1)
+    plt.bar(X_axis - 0.2, train_data, 0.4, color='yellow', label="Training")
+    plt.bar(X_axis + 0.2, val_data, 0.4, color="green", label='Validation')
+    plt.title(plot_title, fontsize=20)
+    plt.xticks(X_axis, labels)
+    plt.xlabel(x_label, fontsize=14)
+    plt.ylabel(y_label, fontsize=14)
+    plt.legend()
+    plt.grid(True)
+
+# Plotting accuracy
+plot_result(
+    "Decision Tree", "Accuracy", "Accuracy scores in 5 Folds",
+    decision_tree_result["Training Accuracy scores"],
+    decision_tree_result["Validation Accuracy scores"]
+)
+plt.show()
+
+# Plotting precision
+plot_result(
+    "Decision Tree", "Precision", "Precision scores in 5 Folds",
+    decision_tree_result["Training Precision scores"],
+    decision_tree_result["Validation Precision scores"]
+)
+plt.show()
+
+# Plotting recall
+plot_result(
+    "Decision Tree", "Recall", "Recall scores in 5 Folds",
+    decision_tree_result["Training Recall scores"],
+    decision_tree_result["Validation Recall scores"]
+)
+plt.show()
+
+# Plotting F1-score
+plot_result(
+    "Decision Tree", "F1-score", "F1-score scores in 5 Folds",
+    decision_tree_result["Training F1 scores"],
+    decision_tree_result["Validation F1 scores"]
+)
+plt.show()
+

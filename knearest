@@ -1,0 +1,26 @@
+import numpy as np
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+iris_data = datasets.load_iris()
+iris_df = pd.DataFrame(data=np.c_[iris_data['data'],iris_data['target']],columns=
+iris_data['feature_names']+['target'])
+iris_df
+X=iris_df.drop(columns=['target'])
+y=iris_df['target']
+X_train,X_test, y_train, y_test = train_test_split(X,y,test_size=0.3, random_state=1)
+knn = KNeighborsClassifier(n_neighbors=6)
+knn = knn.fit(X_train,y_train)
+y_pred=knn.predict(X_test)
+print("Accuracy of model:", accuracy_score(y_pred,y_test))
+i=0
+print('Actual label Predicted Label Correct/wrong prediction')
+for label in y_test:
+  print('%-25s %-25s' %(label,y_pred[i]), end="")
+if (label== y_pred[i]):
+  print('%-25s' %('correct'));
+else:
+  print('%-25s' % ('Wrong'));
+i=i+1

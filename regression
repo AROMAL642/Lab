@@ -1,0 +1,47 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate synthetic data
+np.random.seed(0)
+X = np.linspace(0, 10, 100)
+y = np.sin(X) + np.random.normal(0, 0.1, len(X))
+
+# Reshape X for matrix operations
+X = X.reshape(-1, 1)
+
+# Locally Weighted Regression (LWR) Function
+def locally_weighted_regression(X_train, y_train, tau, X_query):
+    m, n = X_train.shape
+    y_pred = np.zeros(len(X_query))
+
+    for i, x_query in enumerate(X_query):
+        # Compute weights using Gaussian kernel
+        weights = np.exp(-np.sum((X_train - x_query) ** 2, axis=1) / (2 * tau**2))
+        W = np.diag(weights)
+
+        # Solve weighted linear regression
+        theta = np.linalg.pinv(X_train.T @ W @ X_train) @ X_train.T @ W @ y_train
+        y_pred[i] = x_query @ theta
+
+    return y_pred
+
+# Add bias term to X (for intercept)
+X_train = np.hstack([np.ones((X.shape[0], 1)), X])
+X_query = np.hstack([np.ones((X.shape[0], 1)), X])  # Use the same points for prediction
+
+# Bandwidth parameter
+tau = 0.5
+
+# Fit the model
+y_pred = locally_weighted_regression(X_train, y, tau, X_query)
+
+# Visualization
+plt.figure(figsize=(10, 6))
+plt.scatter(X[:, 0], y, label='Data Points', color='blue', alpha=0.6)
+plt.plot(X[:, 0], y_pred, label=f'LWR (tau={tau})', color='red', linewidth=2)
+plt.title("Locally Weighted Regression")
+plt.xlabel("X")
+plt.ylabel("y")
+plt.legend()
+plt.show()
+
