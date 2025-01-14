@@ -1,0 +1,65 @@
+mport pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.datasets import fetch_20newsgroups
+ds = fetch_20newsgroups()
+ds.target_names
+cat = ['alt.atheism',
+'comp.graphics',
+'comp.os.ms-windows.misc',
+'comp.sys.ibm.pc.hardware',
+'comp.sys.mac.hardware',
+'comp.windows.x',
+'misc.forsale',
+'rec.autos',
+'rec.motorcycles',
+'rec.sport.baseball',
+'rec.sport.hockey',
+'sci.crypt',
+'sci.electronics',
+'sci.med',
+'sci.space',
+'soc.religion.christian',
+'talk.politics.guns',
+'talk.politics.mideast',
+'talk.politics.misc',
+'talk.religion.misc']
+train = fetch_20newsgroups(subset= 'train', categories = cat )
+test = fetch_20newsgroups(subset= 'test', categories = cat )
+print(len(test.data))
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.pipeline import make_pipeline
+from sklearn import metrics
+model = make_pipeline(TfidfVectorizer(),MultinomialNB())
+model.fit(train.data, train.target)
+labels = model.predict(test.data)
+print("Precision = ", metrics.precision_score(test.target, labels, average='weighted'))
+print("Accuracy = ", metrics.accuracy_score(test.target, labels))
+print("Recall =", metrics.recall_score(test.target,labels, average='weighted'))
+print("F1-score =", metrics.f1_score(test.target,labels, average='weighted'))
+
+
+['alt.atheism',
+'comp.graphics',
+'comp.os.ms-windows.misc',
+'comp.sys.ibm.pc.hardware',
+'comp.sys.mac.hardware',
+'comp.windows.x',
+'misc.forsale',
+'rec.autos',
+'rec.motorcycles',
+'rec.sport.baseball',
+'rec.sport.hockey',
+'sci.crypt',
+'sci.electronics',
+'sci.med',
+'sci.space',
+'soc.religion.christian',
+'talk.politics.guns',
+'talk.politics.mideast',
+'talk.politics.misc',
+'Talk.religion.misc']
+
+
+
