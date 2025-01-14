@@ -1,0 +1,23 @@
+pip install pgmpy
+import numpy as np
+import pandas as pd
+import csv
+import pgmpy
+from pgmpy.estimators import MaximumLikelihoodEstimator
+from pgmpy.models import BayesianNetwork
+from pgmpy.inference import VariableElimination
+import seaborn as sns
+df = pd.read_csv('/content/heart.csv')
+df = df.replace('?',np.nan)
+model = BayesianNetwork([('oldpeak','target'),('ca','target'),('exang','target'),('thal','target'),
+('restecg','target'),('target','chol')])
+print('\n Learning CPD Using MaximumLikelihoodEstimator')
+model.fit(df, estimator = MaximumLikelihoodEstimator)
+print('\n Inferencing with bayesian network')
+heart_infer = VariableElimination(model)
+print('\n Probability of heart disease given evidence = restecg')
+q1 = heart_infer.query(variables = ['target'], evidence = {'restecg':1})
+print(q1)
+print('\n Probability of heart disease given evidence = thal')
+q2 = heart_infer.query(variables = ['target'], evidence = {'thal':3})
+print(q2)
